@@ -97,8 +97,9 @@ def main():
         print("log : table already exist")
 
     form = URLForm()
+    history = get_history(5)
 
-    return render_template("home.html", form=form)
+    return render_template("home.html", form=form, history=history)
 
 
 @app.route('/link', methods=['GET', 'POST'])
