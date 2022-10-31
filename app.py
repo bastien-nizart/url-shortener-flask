@@ -76,7 +76,7 @@ def ping_info(url: str) -> list:
 
 
 def format_url(url: str) -> str:
-    return url.replace("www", "")
+    return url.replace("www.", "")
 
 
 def get_history(number_of_row: int) -> list:
