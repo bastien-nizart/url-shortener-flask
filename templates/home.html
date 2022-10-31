@@ -9,10 +9,11 @@
 <body class="row vh-100 align-items-center">
     <div class="container-fluid">
         <h1 class="text-center">URL Shortener</h1>
-        <form class="pt-3 pb-3 col-xl-5 col-lg-7 col-md-10 col-xs-12 m-auto">
+        <form class="pt-3 pb-3 col-xl-5 col-lg-7 col-md-10 col-xs-12 m-auto" action="/link" method="POST">
+            {{ form.csrf_token }}
             <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="url" aria-label="url">
-                <button class="btn btn-outline-primary" type="button" id="url">compresser</button>
+                {{ form.url(size=20, class="form-control", placeholder="url") }}
+                <button type="submit" class="btn btn-outline-primary" type="button" id="url">compresser</button>
             </div>
         </form>
 
