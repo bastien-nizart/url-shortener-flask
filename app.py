@@ -2,10 +2,19 @@ import sqlite3
 from sqlite3 import OperationalError
 from hashlib import blake2b
 from datetime import datetime
+from flask_wtf import FlaskForm
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
+from wtforms import StringField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
+app.secret_key = 'mY-SeCRet-kEy'
+BASE_URL = "http://localhost:5000/"
+
+
+class URLForm(FlaskForm):
+    url = StringField('url', validators=[DataRequired()])
 
 
 def table_creation():
@@ -49,7 +58,22 @@ def main():
     except OperationalError:
         print("log : table already exist")
 
-    return render_template("home.html")
+    form = URLForm()
+
+    return render_template("home.html", form=form)
+
+
+@app.route('/link', methods=['GET', 'POST'])
+def new_link():
+    form = URLForm()
+
+    if not form.validate_on_submit():
+        return redirect("/")
+
+    url = format_url(form.url.data)
+    hashed = hash_url(url)
+    data_insertion(url, hashed)
+    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL)
 
 
 if __name__ == '__main__':
