@@ -11,6 +11,7 @@
       <div class="card-body">
           <h5 class="card-title">{{ url }}</h5>
           <h6 class="card-subtitle mb-2 text-muted">{{ base_url }}{{ hashed }}</h6>
+          <p class="text-{{ ping_info[0] }}">ping : {{ ping_info[1] }}</p>
           <img alt="qrcode" width="300px" src="{{ qrcode }}" />
           <div>
               <a target="_blank" href="{{ url }}" class="card-link">{{ url }}</a><br />
