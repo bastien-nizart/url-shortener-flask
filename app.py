@@ -6,6 +6,7 @@ import qrcode
 import base64
 from io import BytesIO
 from flask_wtf import FlaskForm
+from ping3 import ping
 
 from flask import Flask, render_template, redirect
 from wtforms import StringField
@@ -61,6 +62,17 @@ def hash_url(url: str) -> str:
     hashed = blake2b(digest_size=4)
     hashed.update(format_url(url).encode())
     return hashed.hexdigest()
+
+
+def ping_info(url: str) -> list:
+    url = url.replace("://", "")
+    url = url.replace("https", "")
+    url = url.replace("http", "")
+
+    if not ping(url):
+        return ["danger", "aucune réponse"]
+
+    return ["success", str(round(ping(url), 3))+"s"]
 
 
 def format_url(url: str) -> str:
@@ -124,7 +136,9 @@ def new_link():
     url = format_url(form.url.data)
     hashed = hash_url(url)
     data_insertion(url, hashed)
-    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL, qrcode=generate_qrcode(hashed))
+
+    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL,
+                           qrcode=generate_qrcode(hashed), ping_info=ping_info(url))
 
 
 @app.route('/<hashed_url>')
