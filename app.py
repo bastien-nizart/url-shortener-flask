@@ -54,6 +54,22 @@ def format_url(url: str) -> str:
     return url.replace("www", "")
 
 
+def get_history(number_of_row: int) -> list:
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    cur = con.cursor()
+    query = "SELECT * FROM hash ORDER BY at DESC"
+    cur.execute(query)
+
+    new_list = []
+    count = 0
+    for row in cur.fetchall():
+        if count < number_of_row:
+            new_list.append(row)
+            count += 1
+
+    return new_list
+
+
 def generate_qrcode(url: str) -> str:
     qr = qrcode.QRCode(
         version=1,
