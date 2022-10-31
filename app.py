@@ -70,7 +70,7 @@ def format_url(url: str) -> str:
 def get_history(number_of_row: int) -> list:
     con = sqlite3.connect('database.db', check_same_thread=False)
     cur = con.cursor()
-    query = "SELECT * FROM hash ORDER BY at DESC"
+    query = "SELECT * FROM hash ORDER BY at DESC LIMIT " + str(number_of_row)
     cur.execute(query)
 
     new_list = []
@@ -110,8 +110,9 @@ def main():
         print("log : table already exist")
 
     form = URLForm()
+    history = get_history(5)
 
-    return render_template("home.html", form=form)
+    return render_template("home.html", form=form, history=history)
 
 
 @app.route('/link', methods=['GET', 'POST'])
