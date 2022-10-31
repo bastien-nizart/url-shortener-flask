@@ -1,5 +1,6 @@
 import sqlite3
 from sqlite3 import OperationalError
+from hashlib import blake2b
 
 from flask import Flask
 
@@ -13,6 +14,12 @@ def table_creation():
     con.commit()
 
 
+def hash_url(url: str) -> str:
+    hashed = blake2b(digest_size=4)
+    hashed.update(url.encode())
+    return hashed.hexdigest()
+
+
 @app.route('/')
 def main():
     try:
@@ -20,7 +27,7 @@ def main():
     except OperationalError:
         print("log : table already exist")
 
-    return 'Hello World!'
+    return hash_url("https://amazon.com")
 
 
 if __name__ == '__main__':
