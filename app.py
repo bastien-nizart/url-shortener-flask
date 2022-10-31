@@ -3,7 +3,7 @@ from sqlite3 import OperationalError
 from hashlib import blake2b
 from datetime import datetime
 
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -49,7 +49,7 @@ def main():
     except OperationalError:
         print("log : table already exist")
 
-    return "ok"
+    return render_template("home.html")
 
 
 if __name__ == '__main__':
