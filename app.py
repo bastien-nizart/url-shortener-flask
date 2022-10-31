@@ -61,7 +61,7 @@ def generate_qrcode(url: str) -> str:
         box_size=10,
         border=4
     )
-    qr.add_data(url)
+    qr.add_data(BASE_URL + url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
 
@@ -70,7 +70,7 @@ def generate_qrcode(url: str) -> str:
     img.save(buff, format="JPEG")
     base64_bytes = base64.b64encode(buff.getvalue())
     base64_str = base64_bytes.decode('utf-8')
-    return base64_str
+    return "data:image/png;base64," + base64_str
 
 
 @app.route('/')
@@ -95,9 +95,8 @@ def new_link():
     url = format_url(form.url.data)
     hashed = hash_url(url)
     data_insertion(url, hashed)
-    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL)
+    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL, qrcode=generate_qrcode(hashed))
 
 
 if __name__ == '__main__':
     app.run()
-
