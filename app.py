@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 app.secret_key = 'mY-SeCRet-kEy'
+BASE_URL = "http://localhost:5000/"
 
 
 class URLForm(FlaskForm):
@@ -72,7 +73,7 @@ def new_link():
     url = format_url(form.url.data)
     hashed = hash_url(url)
     data_insertion(url, hashed)
-    return form.url.data
+    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL)
 
 
 if __name__ == '__main__':
