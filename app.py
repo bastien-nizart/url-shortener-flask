@@ -2,10 +2,22 @@ import sqlite3
 from sqlite3 import OperationalError
 from hashlib import blake2b
 from datetime import datetime
+import qrcode
+import base64
+from io import BytesIO
+from flask_wtf import FlaskForm
 
-from flask import Flask
+from flask import Flask, render_template, redirect
+from wtforms import StringField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
+app.secret_key = 'mY-SeCRet-kEy'
+BASE_URL = "http://localhost:5000/"
+
+
+class URLForm(FlaskForm):
+    url = StringField('url', validators=[DataRequired()])
 
 
 def table_creation():
@@ -58,6 +70,25 @@ def get_history(number_of_row: int) -> list:
     return new_list
 
 
+def generate_qrcode(url: str) -> str:
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4
+    )
+    qr.add_data(BASE_URL + url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # To Base64
+    buff = BytesIO()
+    img.save(buff, format="JPEG")
+    base64_bytes = base64.b64encode(buff.getvalue())
+    base64_str = base64_bytes.decode('utf-8')
+    return "data:image/png;base64," + base64_str
+
+
 @app.route('/')
 def main():
     try:
@@ -65,7 +96,22 @@ def main():
     except OperationalError:
         print("log : table already exist")
 
-    return "ok"
+    form = URLForm()
+
+    return render_template("home.html", form=form)
+
+
+@app.route('/link', methods=['GET', 'POST'])
+def new_link():
+    form = URLForm()
+
+    if not form.validate_on_submit():
+        return redirect("/")
+
+    url = format_url(form.url.data)
+    hashed = hash_url(url)
+    data_insertion(url, hashed)
+    return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL, qrcode=generate_qrcode(hashed))
 
 
 if __name__ == '__main__':
