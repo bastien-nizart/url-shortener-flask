@@ -27,6 +27,19 @@ def table_creation():
     con.commit()
 
 
+def hash_to_link(hashed_url: str) -> str:
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    cur = con.cursor()
+    query = "SELECT COUNT(*) FROM hash WHERE hash = '" + hashed_url + "'"
+    cur.execute(query)
+    if cur.fetchall()[0][0] == 0:
+        return BASE_URL
+
+    query = "SELECT * FROM hash WHERE hash = '" + hashed_url + "'"
+    cur.execute(query)
+    return cur.fetchall()[0][1]
+
+
 def data_insertion(url: str, hashed_url: str) -> bool:
     con = sqlite3.connect('database.db', check_same_thread=False)
     cur = con.cursor()
@@ -112,6 +125,11 @@ def new_link():
     hashed = hash_url(url)
     data_insertion(url, hashed)
     return render_template("link.html", url=url, hashed=hashed, base_url=BASE_URL, qrcode=generate_qrcode(hashed))
+
+
+@app.route('/<hashed_url>')
+def hashed_link(hashed_url):
+    return redirect(hash_to_link(hashed_url))
 
 
 if __name__ == '__main__':
