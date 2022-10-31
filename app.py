@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import OperationalError
 from hashlib import blake2b
+from datetime import datetime
 
 from flask import Flask
 
@@ -10,7 +11,7 @@ app = Flask(__name__)
 def table_creation():
     con = sqlite3.connect('database.db', check_same_thread=False)
     cur = con.cursor()
-    cur.execute('''CREATE TABLE hash(hash text primary key, url text)''')
+    cur.execute('''CREATE TABLE hash(hash text primary key, url text, at datetime)''')
     con.commit()
 
 
@@ -23,7 +24,8 @@ def data_insertion(url: str, hashed_url: str) -> bool:
     if cur.fetchall()[0][0] > 0:
         return False
 
-    query = "INSERT INTO hash('hash', 'url') VALUES('" + hashed_url + "', '" + url + "')"
+    now = datetime.now()
+    query = "INSERT INTO hash('hash', 'url', 'at') VALUES('" + hashed_url + "', '" + url + "', '" + str(now) + "')"
     cur.execute(query)
     con.commit()
 
