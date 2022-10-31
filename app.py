@@ -14,10 +14,30 @@ def table_creation():
     con.commit()
 
 
+def data_insertion(url: str, hashed_url: str) -> bool:
+    con = sqlite3.connect('database.db', check_same_thread=False)
+    cur = con.cursor()
+    query = "SELECT COUNT(*) FROM hash WHERE hash = '" + hashed_url + "'"
+    cur.execute(query)
+
+    if cur.fetchall()[0][0] > 0:
+        return False
+
+    query = "INSERT INTO hash('hash', 'url') VALUES('" + hashed_url + "', '" + url + "')"
+    cur.execute(query)
+    con.commit()
+
+    return True
+
+
 def hash_url(url: str) -> str:
     hashed = blake2b(digest_size=4)
-    hashed.update(url.encode())
+    hashed.update(format_url(url).encode())
     return hashed.hexdigest()
+
+
+def format_url(url: str) -> str:
+    return url.replace("www", "")
 
 
 @app.route('/')
@@ -27,7 +47,7 @@ def main():
     except OperationalError:
         print("log : table already exist")
 
-    return hash_url("https://amazon.com")
+    return "ok"
 
 
 if __name__ == '__main__':
